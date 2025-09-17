@@ -68,7 +68,7 @@ const Layout = () => {
       {/* Sidebar */}
       <div className={`fixed inset-y-0 z-50 flex w-64 flex-col bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
         sidebarOpen ? 'translate-x-0' : isRTL ? 'translate-x-full' : '-translate-x-full'
-      } ${isRTL ? 'right-0' : 'left-0'} lg:static lg:inset-0`}>
+      } ${isRTL ? 'right-0' : 'left-0'}`}>
         
         {/* Sidebar header */}
         <div className="flex h-16 items-center justify-between px-6 border-b border-gray-200">
