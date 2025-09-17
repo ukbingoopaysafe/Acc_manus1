@@ -43,8 +43,9 @@ app.register_blueprint(print_export_bp, url_prefix='/api/print_export')
 app.register_blueprint(dynamic_calculations_bp, url_prefix='/api/dynamic')
 app.register_blueprint(dynamic_print_export_bp, url_prefix='/api/print')
 
-# Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"
+# Database configuration (MySQL default; can be overridden by env DATABASE_URL)
+default_mysql_url = 'mysql+pymysql://acc_user:acc_pass@db:3306/acc_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', default_mysql_url)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 

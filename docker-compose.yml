@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.4
+    container_name: acc_mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=supersecret
+      - MYSQL_DATABASE=acc_db
+      - MYSQL_USER=acc_user
+      - MYSQL_PASSWORD=acc_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - acc_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  backend:
+    image: acc_backend:latest
+    container_name: acc_backend
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=mysql+pymysql://acc_user:acc_pass@db:3306/acc_db
+    volumes: []
+    expose:
+      - "5000"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  frontend:
+    image: acc_frontend:latest
+    container_name: acc_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - db
+    restart: unless-stopped
+
+volumes:
+  acc_mysql_data:
