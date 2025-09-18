@@ -1,4 +1,5 @@
 from werkzeug.security import generate_password_hash, check_password_hash
+import bcrypt
 from flask_jwt_extended import create_access_token
 from .base import db, BaseModel
 
@@ -32,7 +33,27 @@ class User(BaseModel):
     
     def check_password(self, password):
         """Check if provided password matches hash"""
-        return check_password_hash(self.password_hash, password)
+        # First try Werkzeug's check (used by set_password)
+        try:
+            result = check_password_hash(self.password_hash, password)
+            # If Werkzeug returns a boolean, honor it
+            if isinstance(result, bool):
+                return result
+        except Exception:
+            # Fall through to bcrypt check below
+            pass
+
+        # Fallback: support bcrypt hashes (e.g. $2y$ from PHP bcrypt)
+        try:
+            pw = password.encode('utf-8')
+            hash_bytes = self.password_hash.encode('utf-8')
+            # Normalize $2y$ prefix (common from PHP) to $2b$ which python-bcrypt expects
+            if self.password_hash.startswith('$2y$'):
+                hash_bytes = b'$2b$' + hash_bytes[4:]
+            return bcrypt.checkpw(pw, hash_bytes)
+        except Exception:
+            # Any failure means the password did not match or hash unsupported
+            return False
     
     def generate_token(self):
         """Generate JWT access token"""

@@ -21,6 +21,9 @@ services:
       retries: 30
 
   backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     image: acc_backend:latest
     container_name: acc_backend
     environment:
@@ -29,6 +32,8 @@ services:
     volumes: []
     expose:
       - "5000"
+    ports:
+      - "5000:5000"
     depends_on:
       - db
     restart: unless-stopped
